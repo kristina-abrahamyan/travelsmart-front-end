@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const LoginPage = () => {
+const SignupPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
-    setError('');
+    setMessage('');
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/travelsmart/login`, {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/travelsmart/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -21,31 +21,31 @@ const LoginPage = () => {
         body: JSON.stringify({ email, password }),
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Login successful:', data);
-        navigate('/dashboard'); // Navigate on success
+      const result = await response.json();
+
+      if (response.status === 201) {
+        setMessage('Signup successful! Redirecting...');
+        setTimeout(() => navigate('/'), 1500); // go to login page
       } else {
-        const errorData = await response.json();
-        setError(errorData.message || 'Login failed');
+        setMessage(result.message || 'Signup failed');
       }
     } catch (err) {
-      console.error('Login error:', err);
-      setError('Server error. Please try again later.');
+      console.error('Signup error:', err);
+      setMessage('Server error. Please try again.');
     }
   };
 
-  const goToSignUp = () => {
-    navigate('/signup');
+  const goToLogin = () => {
+    navigate('/');
   };
 
   return (
     <div style={styles.page}>
       <div style={styles.container}>
         <h1 style={styles.heading}>🌍 TravelSmart</h1>
-        <h2 style={styles.subheading}>Login</h2>
+        <h2 style={styles.subheading}>Sign Up</h2>
 
-        <form onSubmit={handleLogin} style={styles.form}>
+        <form onSubmit={handleSignup} style={styles.form}>
           <input
             type="email"
             placeholder="Email"
@@ -72,10 +72,10 @@ const LoginPage = () => {
             </button>
           </div>
 
-          {error && <p style={styles.error}>{error}</p>}
+          {message && <p style={styles.message}>{message}</p>}
 
-          <button type="submit" style={styles.button}>Login</button>
-          <button type="button" onClick={goToSignUp} style={styles.secondaryButton}>Sign Up</button>
+          <button type="submit" style={styles.button}>Sign Up</button>
+          <button type="button" onClick={goToLogin} style={styles.secondaryButton}>Back to Login</button>
         </form>
       </div>
     </div>
@@ -161,4 +161,4 @@ const styles = {
   },
 };
 
-export default LoginPage;
+export default SignupPage;
